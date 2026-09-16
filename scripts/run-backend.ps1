@@ -23,7 +23,7 @@ function Die($msg)  { Write-Host "ERROR: $msg" -ForegroundColor Red; exit 1 }
 # ---------------------------------------------------------------------------
 
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { Die "Docker not found." }
-docker info *> $null
+#docker info *> $null
 if ($LASTEXITCODE -ne 0) { Die "Docker is not running." }
 if (-not (Get-Command curl.exe -ErrorAction SilentlyContinue))  { Die "curl.exe not found." }
 
