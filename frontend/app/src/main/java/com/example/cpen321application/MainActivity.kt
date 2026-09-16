@@ -343,8 +343,12 @@ fun LiveUpdatesScreen(
 
         val client = OkHttpClient()
 
+        val webSocketBaseUrl = BuildConfig.API_BASE_URL
+            .replace("https://", "wss://")
+            .replace("http://", "ws://")
+
         val request = Request.Builder()
-            .url("ws://10.0.2.2:3000/live")
+            .url("${webSocketBaseUrl.trimEnd('/')}/live")
             .build()
 
         val listener = object : WebSocketListener() {
