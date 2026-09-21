@@ -30,7 +30,19 @@ function Die($msg)  { Write-Host "ERROR: $msg" -ForegroundColor Red; exit 1 }
 # Prerequisites
 # ---------------------------------------------------------------------------
 
-if (-not (Get-Command java -ErrorAction SilentlyContinue))  { Die "Java not found." }
+if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
+    $androidStudioJbr = Join-Path $env:ProgramFiles "Android\Android Studio\jbr"
+    $javaExe = Join-Path $androidStudioJbr "bin\java.exe"
+
+    if (Test-Path $javaExe) {
+        $env:JAVA_HOME = $androidStudioJbr
+        $env:Path = "$env:JAVA_HOME\bin;$env:Path"
+        Info "Java not found on PATH; using Android Studio bundled JBR."
+    }
+    else {
+        Die "Java not found. Install Java or set JAVA_HOME / add java to PATH."
+    }
+}
 
 if (-not (Test-Path (Join-Path $FrontendDir 'local.properties'))) { Die "Missing $FrontendDir\local.properties." }
 
