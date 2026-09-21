@@ -1,126 +1,251 @@
-# CPEN321_26W1_ProjectName
+# CPEN 321 M1 - TTCPEN321
 
-_Keep this README up to date with the steps required to build and run the frontend and backend (including any scripts, config files, and environment variables). TAs ill follow these instructions._
+Individual M1 implementation for CPEN 321 Fall 2026.
+
+The application contains three independent features:
+
+1. **Google Sign-In + Server Information**  
+   Authenticates the user with Google and retrieves server/client information from the cloud-hosted backend.
+
+2. **Live Pixel Updates**  
+   Displays a 16×16 pixel-art image assembled in real time using WebSocket updates relayed through the backend.
+
+3. **Timer + Surprise**  
+   Allows the user to set a timer and displays a randomly selected surprise message when the timer expires.
+
+---
 
 ## Requirements
 
-Install the following before the frontend or backend setup steps:
+Install the following before running the project:
 
-- [git](https://git-scm.com/install/)
+- Git
+- Docker Desktop / Docker Engine with Docker Compose
+- Android Studio
+- Android SDK with Android Baklava (API 36)
+- Pixel 9 emulator with API 36
+- Java
 
-
---- 
-
-## Frontend Setup
-
-### Requirements
-
-- [Android Studio](https://developer.android.com/studio) (latest version)
-- [Java 17](https://adoptium.net/temurin/releases/?version=17)
-- [Android SDK](https://developer.android.com/studio#command-tools) with API level 36+ (Android 16)
-
-### Setup
-
-1. **Open project**: Open the `frontend/` directory in Android Studio
-2. **Sync Gradle**: Android Studio will automatically prompt you to sync the project. Click "Sync Now". You can also manually run `cd frontend && ./gradlew build` to trigger the sync and download the necessary dependencies.
-3. **Configure Android SDK**: Ensure you have Android SDK 36 installed.
-4. **Set up emulator/device**:
-   - Create a new AVD (Android Virtual Device) by selecting Pixel 9 as the device and Android Baklava (API level 36) as the system image.
-   - Alternatively, connect a physical Android device running Android 16 (API level 36).
-5. **Setup app config**: Copy the example file, then fill in local values:
-   ```bash
-   cp frontend/local.properties.example frontend/local.properties
-   ```
-   Set at least:
-   - `sdk.dir`: path to your Android SDK. Android Studio usually writes this the first time you open `frontend/`. On Mac it is often `sdk.dir=/Users/<username>/Library/Android/sdk`.
-   - `API_BASE_URL`: backend URL baked into the APK. Use `http://10.0.2.2:3000` for the emulator (`10.0.2.2` is the host machine). For a physical device on the same Wi-Fi, use `http://<your-lan-ip>:3000`.
-
-
-### Build and Run
-
-- **Debug build**: Click the green play button in the toolbar, to compile the code, package a debug APK, and install it on the connected device or running emulator. Alternatively, from the project root, run `./scripts/run-frontend.sh`.
-- **Release build**: Go to Build -> Generate Signed App Bundle or APK -> APK. Follow the on-screen instructions to create a key, and select the "release" build variant. You will then have to manually install the generated APK on your device or the running emulator.
-
-
-### Backend Configuration
-
-Ensure the backend server is running and update the base URL in the app configuration if needed.
+On Windows, if Java is not available on `PATH`, `scripts/run-frontend.ps1` will attempt to use the Java runtime bundled with Android Studio.
 
 ---
-## Backend Setup
 
-You can run the backend in one of two ways:
-* Locally via Node.js 
-* Via Docker Compose
+## Repository Structure
 
-Both ways use the same `backend/.env` file (see below).
+- `frontend/` — Android application written in Kotlin using Jetpack Compose
+- `backend/` — Node.js / TypeScript backend
+- `scripts/` — scripts for building, running, and testing the application
+- `docker-compose.yml` — Docker configuration for the backend and MongoDB
 
-### Environment configuration
+---
 
-From the project root:
+# Frontend Setup
 
-```bash
-cp backend/.env.example backend/.env
+## 1. Configure `frontend/local.properties`
+
+Create:
+
+`frontend/local.properties`
+
+with the following contents:
+
+```properties
+sdk.dir=<PATH_TO_ANDROID_SDK>
+API_BASE_URL=https://34.83.7.203
+GOOGLE_CLIENT_ID=<GOOGLE_OAUTH_WEB_CLIENT_ID>
 ```
 
-Set at least:
-- `JWT_SECRET`: a long random string used to sign auth tokens.
-- `MONGODB_URI`: only needed for local development (default in `.env.example` assumes MongoDB on `localhost:27017`). Ignored when running via Docker Compose.
-- `PORT` (optional): defaults to `3000` if unset.
+### Configuration Notes
 
+#### `sdk.dir`
 
-### Option 1: Run locally
+Replace this with the Android SDK path on the machine running the project.
 
-**Requirements:** 
-- [Node.js](https://nodejs.org/en/download/) 22+
-- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) 10+
+Example on Windows:
 
-**Setup:** 
-1. Install dependencies:
+```properties
+sdk.dir=C\:\\Users\\<USERNAME>\\AppData\\Local\\Android\\Sdk
+```
 
-   ```bash
-   cd backend
-   npm install
-   ```
+#### `API_BASE_URL`
 
-2. **Development** (TypeScript with auto-reload):
+Use the deployed M1 backend:
 
-   ```bash
-   npm run dev
-   ```
+```properties
+API_BASE_URL=https://34.83.7.203
+```
 
-3. **Production build** (optional):
+This value should not need to be changed when grading the submitted M1 application.
 
-   ```bash
-   npm run build
-   npm start
-   ```
+#### `GOOGLE_CLIENT_ID`
 
-### Option 2: Run with Docker Compose
+Replace this with the Google OAuth **Web Client ID** provided in the M1 submission documentation.
 
-**Requirements:** 
-- [Docker](https://docs.docker.com/desktop/setup/install) and [Docker Compose](https://docs.docker.com/desktop/setup/install) v2.24+
-- [curl](https://curl.se/download.html)
+Do not commit `frontend/local.properties` to Git.
 
-**Setup**
-1. **Start** (from the project root):
+---
 
-   ```bash
-   ./scripts/run-backend.sh
-   ```
+## 2. Emulator Setup
 
-   Or run Compose directly:
+Create or use the following Android emulator:
 
-   ```bash
-   docker compose up --build -d
-   ```
+```text
+Device: Pixel 9
+Android version: Baklava
+API level: 36
+```
 
-2. **Stop**:
+A Google account should be signed into the emulator before testing Google Sign-In.
 
-   ```bash
-   docker compose down
-   ```
+---
 
-## Additional Setup
+## 3. Run the Frontend
 
-_Please specify any other additional setup steps non-specific to either frontend nor backend_
+From the repository root on Windows:
+
+```powershell
+.\scripts\run-frontend.ps1
+```
+
+On Linux/macOS:
+
+```bash
+./scripts/run-frontend.sh
+```
+
+The script builds the Android application, installs it on the emulator, and launches it.
+
+---
+
+# Backend Setup
+
+The submitted M1 application uses a backend already deployed on Google Cloud:
+
+```text
+https://34.83.7.203
+```
+
+For local development or independent backend deployment, follow the steps below.
+
+## 1. Configure `backend/.env`
+
+Copy:
+
+```text
+backend/.env.example
+```
+
+to:
+
+```text
+backend/.env
+```
+
+and configure the required values.
+
+Example:
+
+```env
+PORT=3000
+NODE_ENV=development
+
+MONGODB_URI=mongodb://localhost:27017/cpen321
+
+GOOGLE_CLIENT_ID=<GOOGLE_OAUTH_WEB_CLIENT_ID>
+
+JWT_SECRET=<RANDOM_SECRET>
+
+SERVER_PUBLIC_IP=<SERVER_PUBLIC_IP>
+```
+
+A random JWT secret can be generated with:
+
+```bash
+openssl rand -hex 32
+```
+
+Do not commit `backend/.env` to Git.
+
+When Docker Compose is used, the MongoDB connection is automatically configured to use the MongoDB container.
+
+---
+
+## 2. Run the Backend
+
+From the repository root on Windows:
+
+```powershell
+.\scripts\run-backend.ps1
+```
+
+On Linux/macOS:
+
+```bash
+./scripts/run-backend.sh
+```
+
+Docker Compose starts:
+
+- Node.js / TypeScript backend
+- MongoDB
+
+The local backend is exposed on:
+
+```text
+http://localhost:3000
+```
+
+---
+
+# Backend Interfaces
+
+The backend exposes the following interfaces:
+
+```text
+GET /health
+GET /server-ip
+GET /server-time
+GET /name
+WS  /live
+```
+
+The `/live` WebSocket relays pixel updates received from the CPEN 321 course WebSocket server to the Android frontend.
+
+---
+
+# Deployed M1 Backend
+
+Production backend:
+
+```text
+https://34.83.7.203
+```
+
+Production WebSocket endpoint:
+
+```text
+wss://34.83.7.203/live
+```
+
+The deployed backend runs on a Google Cloud Compute Engine VM using Docker Compose. Nginx provides HTTPS/WSS access and forwards requests to the Node.js backend.
+
+---
+
+# M1 Verification
+
+Before submission, verify the submitted application using:
+
+```text
+Pixel 9 emulator
+Android Baklava
+API 36
+```
+
+Confirm that:
+
+- Google Sign-In succeeds
+- Button 1 displays the server public IP `34.83.7.203`
+- Server and client times are displayed correctly
+- Button 2 displays continuously updating 16×16 pixel art
+- Button 3 timer counts down and displays the surprise correctly
+- The backend remains reachable through HTTPS
